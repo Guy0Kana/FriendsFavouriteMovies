@@ -11,6 +11,7 @@ import SwiftData
 struct MovieList: View {
     @Query(sort: \Movie.title) private var movies: [Movie]
     @Environment(\.modelContext) private var context
+    @State private var newMovie: Movie?
     
     
     var body: some View {
@@ -18,17 +19,42 @@ struct MovieList: View {
             List{
                 ForEach(movies) {movie in
                     NavigationLink(movie.title) {
-                        Text("Detail view for \(movie.title)")
-                            .navigationTitle("Movie")
-                            .navigationBarTitleDisplayMode(.inline)
+                        MovieDetail(movie: movie)
                     }
                 }
+                .onDelete(perform: deleteMovies(indexes:))
             }
             .navigationTitle("Movies")
+            .toolbar{
+                ToolbarItem{
+                    Button("Add movie", systemImage: "plus", action: addMovie)
+                }
+                ToolbarItem(placement: .topBarTrailing){
+                    EditButton()
+                }
+            }
         } detail: {
             Text("Select a movie")
                 .navigationTitle("Moviex")
                 .navigationBarTitleDisplayMode(.inline)
+        }
+        .sheet(item: $newMovie) {movie in
+            NavigationStack{
+                MovieDetail (movie: movie, isNew: true)
+            }
+            .interactiveDismissDisabled()
+        }
+    }
+    
+    private func addMovie(){
+        let newMovie = Movie(title: "", releaseDate: .now)
+        context.insert(newMovie)
+        self.newMovie = newMovie
+    }
+    
+    private func deleteMovies(indexes: IndexSet){
+        for index in indexes {
+            context.delete(movies[index])
         }
     }
 }

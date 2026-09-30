@@ -1,5 +1,5 @@
 //
-//  FriendDetail.swift
+//  MovieDetail.swift
 //  FriendsFavouriteMovies
 //
 //  Created by Guyo Godana on 29/09/2026.
@@ -8,24 +8,24 @@
 import SwiftUI
 import SwiftData
 
-struct FriendDetail: View {
-    @Bindable var friend: Friend
+struct MovieDetail: View {
+    @Bindable var movie: Movie
     let isNew: Bool
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     
-    init(friend: Friend, isNew: Bool = false) {
-        self.friend = friend
+    init(movie: Movie, isNew: Bool = false){
+        self.movie = movie
         self.isNew = isNew
     }
     
     var body: some View {
-        Form {
-            TextField("Name", text: $friend.name)
-                .autocorrectionDisabled()
+        Form{
+            TextField("Movie title", text: $movie.title)
+            DatePicker("Release date", selection: $movie.releaseDate, displayedComponents: .date)
         }
-        .navigationTitle(isNew ? "New Friend" : "Friend")
+        .navigationTitle(isNew ? "New Movie" : "Movie")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar{
             if isNew{
@@ -36,6 +36,7 @@ struct FriendDetail: View {
                 }
                 ToolbarItem(placement: .cancellationAction){
                     Button("Cancel"){
+                        context.delete(movie)
                         dismiss()
                     }
                 }
@@ -45,13 +46,12 @@ struct FriendDetail: View {
 }
 
 #Preview {
-    NavigationStack{
-        FriendDetail(friend: SampleData.shared.friend)
+    NavigationStack {
+        MovieDetail(movie: SampleData.shared.movie)
     }
 }
-
-#Preview("New Friend"){
+#Preview("New Movie") {
     NavigationStack{
-        FriendDetail(friend: SampleData.shared.friend, isNew: true)
+        MovieDetail(movie: SampleData.shared.movie, isNew: true)
     }
 }
